@@ -49,10 +49,11 @@ fun UpdateDialog(releaseData: ReleaseData, navigator: WebViewNavigator) {
         ) {
             Surface(
                 shape = RoundedCornerShape(10.dp),
-                modifier = Modifier.border(2.dp, Color.White,RoundedCornerShape(10.dp))
+                modifier = Modifier.border(2.dp, Color.White, RoundedCornerShape(10.dp))
             ) {
                 Column(
-                    modifier = Modifier.background(Color(0XFF201c1c))
+                    modifier = Modifier
+                        .background(Color(0XFF201c1c))
                         .fillMaxWidth()
                         .padding(20.dp)
                 ) {
@@ -64,12 +65,12 @@ fun UpdateDialog(releaseData: ReleaseData, navigator: WebViewNavigator) {
                         fontSize = 22.sp
                     )
 
-                   Text(
-                       text = AnnotatedString.fromHtml(releaseData.changelog),
-                       modifier = Modifier.padding(horizontal = 20.dp),
-                       color = Color.White,
-                       fontSize = 16.sp
-                   )
+                    Text(
+                        text = AnnotatedString.fromHtml(releaseData.changelog),
+                        modifier = Modifier.padding(horizontal = 20.dp),
+                        color = Color.White,
+                        fontSize = 16.sp
+                    )
 
                     Row {
                         YTButton("Cancel") { isShowDialog.value = false }
@@ -95,7 +96,6 @@ fun UpdateDialog(releaseData: ReleaseData, navigator: WebViewNavigator) {
                 }
             }
         }
-        // Request focus for Update button.
         LaunchedEffect(Unit) {
             scope.launch { focusRequester.requestFocus() }
         }
