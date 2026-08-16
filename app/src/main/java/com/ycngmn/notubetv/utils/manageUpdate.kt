@@ -20,16 +20,15 @@ suspend fun fetchUpdate() : ReleaseData {
     val req = client.get(fetchUrl)
     val res = JSONObject(req.body() as String)
 
-    val commitSHA = Regex("\\b[a-fA-F0-9]{40}\\b")
+    val commitSHA = Regex("\b[a-fA-F0-9]{40}\b")
 
     return ReleaseData(
         tagName = res.getString("tag_name"),
         changelog = res.getString("body")
-            .substringAfter("</ins>").replace(commitSHA, "").replace(Regex("\\s{2,}"), " "),
+            .substringAfter("").replace(commitSHA, "").replace(Regex("\s{2,}"), " "),
         downloadUrl = res.getJSONArray("assets").getJSONObject(0).getString("browser_download_url")
     )
 }
-
 
 suspend fun getUpdate(context: Context, navigator: WebViewNavigator, callback: (ReleaseData?) -> Unit) {
     try {
