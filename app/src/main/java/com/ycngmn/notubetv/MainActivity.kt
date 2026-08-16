@@ -16,10 +16,17 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        window.setLayout(3840, 2160)
+
+        // ✅ FIXED #38: Dynamic layout instead of hardcoded 4K resolution
+        // This prevents UI shrinking after login on non-4K screens
+        window.setLayout(
+            android.view.WindowManager.LayoutParams.MATCH_PARENT,
+            android.view.WindowManager.LayoutParams.MATCH_PARENT
+        )
+
         setContent {
             NoTubeTVTheme {
-               Box(modifier = Modifier.fillMaxSize()) { YoutubeWV() }
+                Box(modifier = Modifier.fillMaxSize()) { YoutubeWV() }
             }
         }
     }
