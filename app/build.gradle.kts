@@ -64,7 +64,6 @@ dependencies {
 
     // WebView
     implementation("io.github.kevinnzou:compose-webview:0.33.6")
-    implementation("com.multiplatform:webview:0.31.0")
 
     // Ktor
     implementation("io.ktor:ktor-client-android:2.3.12")
