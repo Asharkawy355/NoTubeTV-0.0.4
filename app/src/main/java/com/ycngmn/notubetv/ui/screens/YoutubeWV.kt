@@ -4,6 +4,7 @@ import android.app.Activity
 import android.view.View
 import android.view.WindowManager
 import android.webkit.CookieManager
+import android.webkit.WebSettings
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
@@ -42,16 +43,15 @@ fun YoutubeWV(youtubeVM: YoutubeVM = viewModel()) {
     val loadingState = state.loadingState
     val exitTrigger = remember { mutableStateOf(false) }
 
-    // Translate native back-presses to 'escape' button press
     BackHandler {
         if (state.loadingState is LoadingState.Finished)
             navigator.evaluateJavaScript(readRaw(context, R.raw.back_bridge))
         else exitTrigger.value = true
     }
 
-    // Fetch scripts and updates at launch
     LaunchedEffect(Unit) {
-        youtubeVM.setScript(fetchScripts() )
+        // ✅ Pass context to fetchScripts for local assets loading
+        youtubeVM.setScript(fetchScripts(context))
         getUpdate(context, navigator) { update ->
             if (update != null) youtubeVM.setUpdate(update)
         }
@@ -59,12 +59,10 @@ fun YoutubeWV(youtubeVM: YoutubeVM = viewModel()) {
 
     if (loadingState == LoadingState.Finished && jsScript != null)
         navigator.evaluateJavaScript(jsScript)
-    // If any update found, show the dialog.
+
     if (updateData != null) UpdateDialog(updateData, navigator)
-    // If exit button is pressed, 'finish the activity' aka 'exit the app'.
     if (exitTrigger.value) activity.finish()
 
-    // This is the loading screen
     val loading = state.loadingState as? LoadingState.Loading
     if (loading != null) SplashLoading(loading.progress)
 
@@ -81,46 +79,56 @@ fun YoutubeWV(youtubeVM: YoutubeVM = viewModel()) {
                 WindowManager.LayoutParams.MATCH_PARENT
             )
 
-            // Set up cookies
             val cookieManager = CookieManager.getInstance()
             cookieManager.setAcceptCookie(true)
             cookieManager.setAcceptThirdPartyCookies(webView, true)
             cookieManager.flush()
 
             state.webSettings.apply {
-                // This user agent provides native like experience.
-                // "PS4" for 4K. "Wired" for previews.
-                customUserAgentString = "Mozilla/5.0 Cobalt/25 (Sony, PS4, Wired)"
+                // ✅ FIXED #40: Updated UserAgent for Android TV (not PS4)
+                // PS4 UA caused buffering issues and limited 4K support
+                customUserAgentString = "Mozilla/5.0 (Linux; Android 14; Android TV Build/UP1A.231005.007) Cobalt/25.0"
+
                 isJavaScriptEnabled = true
 
                 androidWebSettings.apply {
-                    //isDebugInspectorInfoEnabled = true
                     useWideViewPort = true
                     domStorageEnabled = true
                     hideDefaultVideoPoster = true
                     mediaPlaybackRequiresUserGesture = false
+
+                    // ✅ FIXED #40: Performance optimizations for 4K playback
+                    builtInZoomControls = false
+                    displayZoomControls = false
+                    cacheMode = WebSettings.LOAD_DEFAULT
+                    mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
+                    setRenderPriority(WebSettings.RenderPriority.HIGH)
+
+                    // Enable database and app cache for Leanback
+                    databaseEnabled = true
+                    setAppCacheEnabled(true)
+                    setAppCachePath(context.cacheDir.absolutePath)
+
+                    // Enable hardware acceleration for video
+                    setEnableSmoothTransition(true)
                 }
             }
 
             webView.apply {
-
-                // Bridges the exit button click on the website to handle it natively.
                 addJavascriptInterface(ExitBridge(exitTrigger), "ExitBridge")
-
-                /*
-                Youtube's content security policy doesn't allow calling fetch on
-                3rd party websites (eg. SponsorBlock api). This bridge counters that
-                handling the requests on the native side. */
                 addJavascriptInterface(NetworkBridge(navigator), "NetworkBridge")
 
-                // Enables hardware acceleration
                 setLayerType(View.LAYER_TYPE_HARDWARE, null)
-                // Set the zoom to 25% to fit the screen. Side-effect of viewport spoofing.
-                setInitialScale(25)
 
-                // Hide scrollbars
+                // ✅ FIXED #38: Changed from 25% to 100% to prevent UI shrink
+                setInitialScale(100)
+
                 isVerticalScrollBarEnabled = false
                 isHorizontalScrollBarEnabled = false
+
+                // TV navigation support
+                isFocusable = true
+                isFocusableInTouchMode = true
             }
         }
     )
