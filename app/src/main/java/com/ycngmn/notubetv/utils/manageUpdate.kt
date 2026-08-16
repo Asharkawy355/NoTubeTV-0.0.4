@@ -1,7 +1,7 @@
 package com.ycngmn.notubetv.utils
 
 import android.content.Context
-import com.multiplatform.webview.web.WebViewNavigator
+import io.github.kevinnzou.webview.web.WebViewNavigator
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.engine.okhttp.OkHttp
@@ -36,8 +36,8 @@ suspend fun getUpdate(context: Context, navigator: WebViewNavigator, callback: (
         val remoteVersion = remoteRelease.tagName.removePrefix("v")
 
         if (remoteVersion > getLocalVersion(context)) {
-            getSkipVersion(navigator) {
-                val skipVersion = it?.removeSurrounding("\"")?.removePrefix("v")
+            getSkipVersion(navigator) { result ->
+                val skipVersion = result?.removeSurrounding("\"")?.removePrefix("v")
                 if (skipVersion != remoteVersion)
                     callback(remoteRelease)
                 else callback(null)
@@ -54,7 +54,7 @@ private fun getLocalVersion(context: Context): String {
 }
 
 fun getSkipVersion(navigator: WebViewNavigator, callback: (String?) -> Unit) {
-    navigator.evaluateJavaScript("configRead('skipVersionName')") {
-        callback(it)
+    navigator.evaluateJavaScript("configRead('skipVersionName')") { result ->
+        callback(result)
     }
 }
