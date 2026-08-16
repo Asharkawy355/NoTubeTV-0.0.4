@@ -55,6 +55,7 @@ dependencies {
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.ui:ui-graphics")
     implementation("androidx.compose.ui:ui-tooling-preview")
+    implementation("androidx.compose.ui:ui-text:1.7.0")
     implementation("androidx.compose.material3:material3")
 
     // TV Material
@@ -63,6 +64,7 @@ dependencies {
 
     // WebView
     implementation("io.github.kevinnzou:compose-webview:0.33.6")
+    implementation("com.multiplatform:webview:0.31.0")
 
     // Ktor
     implementation("io.ktor:ktor-client-android:2.3.12")
