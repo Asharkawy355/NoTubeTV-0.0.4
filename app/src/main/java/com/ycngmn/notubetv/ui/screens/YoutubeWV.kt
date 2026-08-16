@@ -14,10 +14,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.multiplatform.webview.web.LoadingState
-import com.multiplatform.webview.web.WebView
-import com.multiplatform.webview.web.rememberWebViewNavigator
-import com.multiplatform.webview.web.rememberWebViewState
+import io.github.kevinnzou.webview.web.LoadingState
+import io.github.kevinnzou.webview.web.WebView
+import io.github.kevinnzou.webview.web.rememberWebViewNavigator
+import io.github.kevinnzou.webview.web.rememberWebViewState
 import com.ycngmn.notubetv.R
 import com.ycngmn.notubetv.ui.YoutubeVM
 import com.ycngmn.notubetv.ui.components.UpdateDialog
