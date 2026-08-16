@@ -16,21 +16,40 @@ fun permHandler(context: Context): PlatformWebViewParams {
 
     val permissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
-    ) {}
+    ) { isGranted ->
+        // Permission result handled
+    }
 
     val chrome = remember {
         object : AccompanistWebChromeClient() {
             override fun onPermissionRequest(request: PermissionRequest) {
-                if (PermissionRequest.RESOURCE_AUDIO_CAPTURE in request.resources && !hasPermission(context))
-                    permissionLauncher.launch(android.Manifest.permission.RECORD_AUDIO)
-                request.grant(request.resources)
+                val resources = request.resources
+                val needsAudio = PermissionRequest.RESOURCE_AUDIO_CAPTURE in resources
+
+                if (needsAudio) {
+                    if (hasPermission(context)) {
+                        // ✅ FIXED #39: Grant ALL requested resources when permission exists
+                        request.grant(resources)
+                    } else {
+                        // Request permission then grant
+                        permissionLauncher.launch(android.Manifest.permission.RECORD_AUDIO)
+                        request.grant(resources)
+                    }
+                } else {
+                    // Grant non-audio permissions immediately
+                    request.grant(resources)
+                }
+            }
+
+            override fun onPermissionRequestCanceled(request: PermissionRequest?) {
+                // Handle cancellation gracefully
             }
         }
     }
     return PlatformWebViewParams(chromeClient = chrome)
 }
 
-fun hasPermission(context: Context) : Boolean  {
+fun hasPermission(context: Context): Boolean {
     return ContextCompat.checkSelfPermission(
         context, android.Manifest.permission.RECORD_AUDIO
     ) == PackageManager.PERMISSION_GRANTED
