@@ -29,7 +29,7 @@ import androidx.tv.material3.Button
 import androidx.tv.material3.ButtonDefaults
 import androidx.tv.material3.Surface
 import androidx.tv.material3.Text
-import com.multiplatform.webview.web.WebViewNavigator
+import io.github.kevinnzou.webview.web.WebViewNavigator
 import com.ycngmn.notubetv.utils.ReleaseData
 import kotlinx.coroutines.launch
 
@@ -90,7 +90,8 @@ fun UpdateDialog(releaseData: ReleaseData, navigator: WebViewNavigator) {
                         YTButton("Skip this version") {
                             navigator.evaluateJavaScript(
                                 "configWrite('skipVersionName', '${releaseData.tagName}')"
-                            ) { isShowDialog.value = false }
+                            )
+                            isShowDialog.value = false
                         }
                     }
                 }
